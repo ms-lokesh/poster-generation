@@ -104,7 +104,7 @@ class ImageProcessor:
                     inst_width = get_text_width(inst_font, institution)
                     inst_x = photo_center_x - (inst_width // 2)
                     inst_x = max(20, inst_x)
-                    draw.text((inst_x, photo_bottom_y + font_size + 10), institution, font=inst_font, fill="#555555")
+                    draw.text((inst_x, photo_bottom_y + font_size + 10), institution, font=inst_font, fill="black")
             
             final_img.save(output_path, "PNG")
             return True
