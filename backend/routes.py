@@ -38,15 +38,17 @@ def api_upload():
 def processing():
     temp_id = request.args.get('id')
     name = request.args.get('name', '')
+    institution = request.args.get('institution', '')
     if not temp_id:
         return redirect(url_for('poster_bp.upload'))
-    return render_template('processing.html', temp_id=temp_id, name=name)
+    return render_template('processing.html', temp_id=temp_id, name=name, institution=institution)
 
 @poster_bp.route('/api/generate', methods=['POST'])
 def api_generate():
     data = request.get_json()
     temp_id = data.get('id')
     name = data.get('name', '')
+    institution = data.get('institution', '')
     if not temp_id:
         return jsonify({'error': 'Missing id'}), 400
         
@@ -54,7 +56,7 @@ def api_generate():
     if not os.path.exists(filepath):
         return jsonify({'error': 'File not found'}), 404
         
-    generated_filename = generator.generate(filepath, name)
+    generated_filename = generator.generate(filepath, name, institution)
     
     # Simulate processing time so the user sees the cool loader
     time.sleep(1.5)

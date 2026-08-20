@@ -7,11 +7,11 @@ class PosterGenerator:
     def __init__(self):
         self.processor = ImageProcessor(Config.TEMPLATE_PATH)
 
-    def generate(self, user_img_path, name=None):
+    def generate(self, user_img_path, name=None, institution=None):
         filename = f"poster_{uuid.uuid4().hex}.png"
         output_path = os.path.join(Config.GENERATED_FOLDER, filename)
         
-        success = self.processor.process_and_merge(user_img_path, output_path, name)
+        success = self.processor.process_and_merge(user_img_path, output_path, name, institution)
         
         if success:
             return filename

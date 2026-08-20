@@ -3,7 +3,7 @@ from flask import Flask, send_from_directory
 from backend.config import Config
 from backend.routes import poster_bp
 
-app = Flask(__name__, static_folder=os.path.join(Config.BASE_DIR, '../assets'), static_url_path='/static') 
+app = Flask(__name__, static_folder='/Users/lokesh/GDTA2026_live/static-website/assets', static_url_path='/static') 
 app.config.from_object(Config)
 
 # Register blueprint

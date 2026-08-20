@@ -62,6 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 showError('Please enter your name for the poster.');
                 return;
             }
+            const institutionInput = document.getElementById('institution-name-input');
+            if (institutionInput && !institutionInput.value.trim()) {
+                showError('Please enter your institution name.');
+                return;
+            }
             
             // Show loading state
             continueBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Uploading...';
@@ -79,7 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     const nameInput = document.getElementById('attendee-name-input');
                     const nameParam = nameInput && nameInput.value ? `&name=${encodeURIComponent(nameInput.value)}` : '';
-                    window.location.href = `/poster/processing?id=${data.temp_id}${nameParam}`;
+                    const institutionInput = document.getElementById('institution-name-input');
+                    const instParam = institutionInput && institutionInput.value ? `&institution=${encodeURIComponent(institutionInput.value)}` : '';
+                    window.location.href = `/poster/processing?id=${data.temp_id}${nameParam}${instParam}`;
                 } else {
                     showError(data.error || 'Upload failed');
                     resetBtn();
@@ -137,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Processing Logic ---
     const tempIdInput = document.getElementById('temp-id');
     const nameInput = document.getElementById('attendee-name');
+    const institutionInput = document.getElementById('institution-name');
     if (tempIdInput && tempIdInput.value) {
         // Automatically ping the backend to generate
         fetch('/poster/api/generate', {
@@ -144,7 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ id: tempIdInput.value, name: nameInput ? nameInput.value : '' })
+            body: JSON.stringify({ 
+                id: tempIdInput.value, 
+                name: nameInput ? nameInput.value : '',
+                institution: institutionInput ? institutionInput.value : ''
+            })
         })
         .then(response => response.json())
         .then(data => {

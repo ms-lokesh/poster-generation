@@ -8,7 +8,7 @@ class ImageProcessor:
         self.target_size = (450, 450)
         self.paste_coords = (55, 600)
 
-    def process_and_merge(self, user_img_path, output_path, name=None):
+    def process_and_merge(self, user_img_path, output_path, name=None, institution=None):
         try:
             user_img = Image.open(user_img_path).convert("RGBA")
             template_img = Image.open(self.template_path).convert("RGBA")
@@ -74,6 +74,28 @@ class ImageProcessor:
                 text_x = max(10, text_x)
                 
                 draw.text((text_x, photo_bottom_y), name, font=font, fill="black")
+                
+                if institution:
+                    inst_font_size = font_size - 30
+                    if inst_font_size < 20: inst_font_size = 20
+                    inst_font = None
+                    while inst_font_size >= 10:
+                        try:
+                            inst_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", inst_font_size)
+                        except:
+                            try:
+                                inst_font = ImageFont.truetype("arial.ttf", inst_font_size)
+                            except:
+                                inst_font = ImageFont.load_default()
+                                break
+                        if get_text_width(inst_font, institution) <= max_text_width:
+                            break
+                        inst_font_size -= 2
+                        
+                    inst_width = get_text_width(inst_font, institution)
+                    inst_x = photo_center_x - (inst_width // 2)
+                    inst_x = max(10, inst_x)
+                    draw.text((inst_x, photo_bottom_y + font_size + 10), institution, font=inst_font, fill="#555555")
             
             final_img.save(output_path, "PNG")
             return True
