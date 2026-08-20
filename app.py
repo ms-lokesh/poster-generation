@@ -18,11 +18,11 @@ def index():
     from flask import redirect, url_for
     return redirect(url_for('poster_bp.landing'))
 
+os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(Config.GENERATED_FOLDER, exist_ok=True)
+os.makedirs(os.path.dirname(Config.TEMPLATE_PATH), exist_ok=True)
+
 if __name__ == '__main__':
-    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
-    os.makedirs(Config.GENERATED_FOLDER, exist_ok=True)
-    os.makedirs(os.path.dirname(Config.TEMPLATE_PATH), exist_ok=True)
-    
     # Generate a placeholder template if it doesn't exist
     if not os.path.exists(Config.TEMPLATE_PATH):
         from PIL import Image, ImageDraw, ImageFont
