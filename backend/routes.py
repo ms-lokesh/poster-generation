@@ -21,18 +21,25 @@ def upload():
 
 @poster_bp.route('/api/upload', methods=['POST'])
 def api_upload():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    if file and allowed_file(file.filename):
-        ext = file.filename.rsplit('.', 1)[1].lower()
-        filename = f"temp_{uuid.uuid4().hex}.{ext}"
-        filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
-        file.save(filepath)
-        return jsonify({'success': True, 'temp_id': filename})
-    return jsonify({'error': 'Invalid file type'}), 400
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+        if file and allowed_file(file.filename):
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            filename = f"temp_{uuid.uuid4().hex}.{ext}"
+            filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
+            
+            # Ensure the directory exists right before saving (critical for serverless)
+            os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
+            
+            file.save(filepath)
+            return jsonify({'success': True, 'temp_id': filename})
+        return jsonify({'error': 'Invalid file type'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @poster_bp.route('/processing')
 def processing():
@@ -45,31 +52,35 @@ def processing():
 
 @poster_bp.route('/api/generate', methods=['POST'])
 def api_generate():
-    data = request.get_json()
-    temp_id = data.get('id')
-    name = data.get('name', '')
-    institution = data.get('institution', '')
-    if not temp_id:
-        return jsonify({'error': 'Missing id'}), 400
-        
-    filepath = os.path.join(Config.UPLOAD_FOLDER, temp_id)
-    if not os.path.exists(filepath):
-        return jsonify({'error': 'File not found'}), 404
-        
-    generated_filename = generator.generate(filepath, name, institution)
-    
-    # Simulate processing time so the user sees the cool loader
-    time.sleep(1.5)
-    
-    # Cleanup temp file
     try:
-        os.remove(filepath)
-    except:
-        pass
+        data = request.get_json()
+        temp_id = data.get('id')
+        name = data.get('name', '')
+        institution = data.get('institution', '')
+        if not temp_id:
+            return jsonify({'error': 'Missing id'}), 400
+            
+        filepath = os.path.join(Config.UPLOAD_FOLDER, temp_id)
+        if not os.path.exists(filepath):
+            return jsonify({'error': 'File not found'}), 404
+            
+        os.makedirs(Config.GENERATED_FOLDER, exist_ok=True)
+        generated_filename = generator.generate(filepath, name, institution)
         
-    if generated_filename:
-        return jsonify({'success': True, 'poster_id': generated_filename})
-    return jsonify({'error': 'Generation failed'}), 500
+        # Simulate processing time so the user sees the cool loader
+        time.sleep(1.5)
+        
+        # Cleanup temp file
+        try:
+            os.remove(filepath)
+        except:
+            pass
+            
+        if generated_filename:
+            return jsonify({'success': True, 'poster_id': generated_filename})
+        return jsonify({'error': 'Generation failed'}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @poster_bp.route('/result')
 def result():
