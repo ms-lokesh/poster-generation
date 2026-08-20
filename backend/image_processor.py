@@ -49,15 +49,21 @@ class ImageProcessor:
                     except AttributeError:
                         return draw.textsize(text, font=f)[0]
                 
+                font_path_bold = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'Roboto-Bold.ttf')
+                font_path_regular = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'Roboto-Regular.ttf')
+                
                 while font_size >= 24:
                     try:
-                        font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", font_size)
+                        font = ImageFont.truetype(font_path_bold, font_size)
                     except:
                         try:
-                            font = ImageFont.truetype("arial.ttf", font_size)
+                            font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", font_size)
                         except:
-                            font = ImageFont.load_default()
-                            break
+                            try:
+                                font = ImageFont.truetype("arial.ttf", font_size)
+                            except:
+                                font = ImageFont.load_default()
+                                break
                     
                     if get_text_width(font, name) <= max_text_width:
                         break
@@ -81,13 +87,16 @@ class ImageProcessor:
                     inst_font = None
                     while inst_font_size >= 20:
                         try:
-                            inst_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", inst_font_size)
+                            inst_font = ImageFont.truetype(font_path_regular, inst_font_size)
                         except:
                             try:
-                                inst_font = ImageFont.truetype("arial.ttf", inst_font_size)
+                                inst_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", inst_font_size)
                             except:
-                                inst_font = ImageFont.load_default()
-                                break
+                                try:
+                                    inst_font = ImageFont.truetype("arial.ttf", inst_font_size)
+                                except:
+                                    inst_font = ImageFont.load_default()
+                                    break
                         if get_text_width(inst_font, institution) <= max_text_width:
                             break
                         inst_font_size -= 4
